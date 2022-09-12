@@ -886,12 +886,12 @@ Action ShowChatRanksMenu(int client, int item)
 		client);
 
 	char sDisplay[MAXLENGTH_DISPLAY];
-	FormatEx(sDisplay, MAXLENGTH_DISPLAY, "%T\n ", "AutoAssign", client);
+	FormatEx(sDisplay, MAXLENGTH_DISPLAY, "%T ", "AutoAssign", client);
 	menu.AddItem("-2", sDisplay);
 
 	if(HasCustomChat(client))
 	{
-		FormatEx(sDisplay, MAXLENGTH_DISPLAY, "%T\n ", "CustomChat", client);
+		FormatEx(sDisplay, MAXLENGTH_DISPLAY, "%T ", "CustomChat", client);
 		menu.AddItem("-1", sDisplay);
 	}
 
@@ -935,7 +935,7 @@ Action ShowChatRanksMenu(int client, int item)
 		}
 
 		char sMenuDisplay[MAXLENGTH_DISPLAY];
-		FormatEx(sMenuDisplay, sizeof(sMenuDisplay), "%s\n ", cache.sDisplay);
+		FormatEx(sMenuDisplay, sizeof(sMenuDisplay), "%s ", cache.sDisplay);
 
 		char sInfo[8];
 		IntToString(i, sInfo, 8);

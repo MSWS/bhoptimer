@@ -70,11 +70,11 @@
 	}
 	"AutoAssign"
 	{
-		"en"		"Auto-assign\nAutomatically assign using your rank."
+		"en"		"Auto-assign\nAutomatically assign using your rank.\n"
 	}
 	"CustomChat"
 	{
-		"en"		"Custom\nUse custom chat settings. See !cchelp for more information."
+		"en"		"Custom\nUse custom chat settings. See !cchelp for more information.\n"
 	}
 	"ChatRanksMenu"
 	{
