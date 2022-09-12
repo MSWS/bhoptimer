@@ -943,7 +943,7 @@ Action ShowChatRanksMenu(int client, int item)
 		menu.AddItem(sInfo, sMenuDisplay);
 	}
 
-	menu.Pagination = 4; // 4 items per page because menus have a 512 byte limit...
+	// menu.Pagination = 4; // 4 items per page because menus have a 512 byte limit...
 	menu.ExitBackButton = true;
 	menu.DisplayAt(client, item, MENU_TIME_FOREVER);
 
