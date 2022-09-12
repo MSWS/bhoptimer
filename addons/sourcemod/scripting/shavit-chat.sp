@@ -886,12 +886,12 @@ Action ShowChatRanksMenu(int client, int item)
 		client);
 
 	char sDisplay[MAXLENGTH_DISPLAY];
-	FormatEx(sDisplay, MAXLENGTH_DISPLAY, "%T ", "AutoAssign", client);
+	FormatEx(sDisplay, MAXLENGTH_DISPLAY, "%T\n ", "AutoAssign", client);
 	menu.AddItem("-2", sDisplay);
 
 	if(HasCustomChat(client))
 	{
-		FormatEx(sDisplay, MAXLENGTH_DISPLAY, "%T ", "CustomChat", client);
+		FormatEx(sDisplay, MAXLENGTH_DISPLAY, "%T\n ", "CustomChat", client);
 		menu.AddItem("-1", sDisplay);
 	}
 
