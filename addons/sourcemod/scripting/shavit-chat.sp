@@ -453,6 +453,11 @@ public Action Hook_SayText2(UserMsg msg_id, any msg, const int[] players, int pl
 		return Plugin_Continue;
 	}
 
+	if(StrContains(sMessage, "/") == 0)
+	{
+		return Plugin_Continue;
+	}
+
 	char sTime[50];
 
 	if (gCV_TimeInMessages.BoolValue)
