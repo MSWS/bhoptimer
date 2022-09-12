@@ -988,7 +988,7 @@ public void OpenStatsMenuCallback(Database db, DBResultSet results, const char[]
 
 			if (!GeoipCountry(sIPAddress, sCountry, 64))
 			{
-				sCountry = "Local Area Network";
+				sCountry = NULL_STRING;
 			}
 
 			float fPlaytime = results.FetchFloat(4);
@@ -1032,83 +1032,87 @@ public void OpenStatsMenuCallback(Database db, DBResultSet results, const char[]
 	iWRs[0] = iWRs[0] < iMaps[0] ? iWRs[0] : iMaps[0];
 	iWRs[1] = iWRs[1] < iMaps[1] ? iWRs[1] : iMaps[1];
 
-	if (1 & 1) // :upside_down_smiley_face:
+	char sRankingString[64];
+
+	if(gB_Rankings)
 	{
-		char sRankingString[64];
-
-		if(gB_Rankings)
+		if (iRank > 0 && fPoints > 0.0)
 		{
-			if (iRank > 0 && fPoints > 0.0)
-			{
-				FormatEx(sRankingString, 64, "\n%T: #%d/%d\n%T: %.2f", "Rank", client, iRank, Shavit_GetRankedPlayers(), "Points", client, fPoints);
-			}
-			else
-			{
-				FormatEx(sRankingString, 64, "\n%T: %T", "Rank", client, "PointsUnranked", client);
-			}
+			FormatEx(sRankingString, 64, "\n%T: #%d/%d\n%T: %.2f", "Rank", client, iRank, Shavit_GetRankedPlayers(), "Points", client, fPoints);
 		}
-
-		Menu menu = new Menu(MenuHandler_ProfileHandler);
-		menu.SetTitle("%s's %T. [U:1:%u]\n%T: %s\n%s\n%s\n%T: %s\n",
-			gS_TargetName[client], "Profile", client, gI_TargetSteamID[client], "Country", client, sCountry, sLastLogin,
-			sRankingString, "Playtime", client, sPlaytime);
-
-		int[] styles = new int[gI_Styles];
-		Shavit_GetOrderedStyles(styles, gI_Styles);
-
-		for(int i = 0; i < gI_Styles; i++)
+		else
 		{
-			int iStyle = styles[i];
-
-			if(Shavit_GetStyleSettingInt(iStyle, "unranked") || Shavit_GetStyleSettingInt(iStyle, "enabled") <= 0)
-			{
-				continue;
-			}
-
-			char sInfo[4];
-			IntToString(iStyle, sInfo, 4);
-
-			char sStyleInfo[256];
-
-			if (iStyle == gI_Style[client])
-			{
-				FormatEx(sStyleInfo, sizeof(sStyleInfo),
-					"%s\n"...
-					"    [Main] %T: %d/%d (%0.1f%%)\n"...
-					"    [Main] %T: %d\n"...
-					"    [Bonus] %T: %d/%d (%0.1f%%)\n"...
-					"    [Bonus] %T: %d\n"...
-					"    [%T] %s\n"...
-					"",
-					gS_StyleStrings[iStyle].sStyleName,
-					"MapCompletions", client, iCompletions[0], iMaps[0], ((float(iCompletions[0]) / (iMaps[0] > 0 ? float(iMaps[0]) : 0.0)) * 100.0),
-					"WorldRecords", client, iWRs[0],
-					"MapCompletions", client, iCompletions[1], iMaps[1], ((float(iCompletions[1]) / (iMaps[1] > 0 ? float(iMaps[1]) : 0.0)) * 100.0),
-					"WorldRecords", client, iWRs[1],
-					"Playtime", client, sStylePlaytime
-				);
-			}
-			else
-			{
-				FormatEx(sStyleInfo, sizeof(sStyleInfo), "%s\n", gS_StyleStrings[iStyle].sStyleName);
-			}
-
-			menu.AddItem(sInfo, sStyleInfo);
+			FormatEx(sRankingString, 64, "\n%T: %T", "Rank", client, "PointsUnranked", client);
 		}
-
-		// should NEVER happen
-		if(menu.ItemCount == 0)
-		{
-			char sMenuItem[64];
-			FormatEx(sMenuItem, 64, "%T", "NoRecords", client);
-			menu.AddItem("-1", sMenuItem);
-		}
-
-		menu.ExitButton = true;
-		menu.DisplayAt(client, item, MENU_TIME_FOREVER);
-
-		Shavit_PrintSteamIDOnce(client, gI_TargetSteamID[client], gS_TargetName[client]);
 	}
+
+	char countryLine[64];
+	if(!StrEqual(sCountry, NULL_STRING)) {
+		// Format(countryLine, 64, "\n%T: %T", "Country", client, "Unknown", client);
+	// } else {
+		Format(countryLine, 64, "\n%T: %s", "Country", client, sCountry);
+	}
+
+	Menu menu = new Menu(MenuHandler_ProfileHandler);
+	menu.SetTitle("%s's %T. [U:1:%u]\n%s\n%s\n%s\n%T: %s\n",
+		gS_TargetName[client], "Profile", client, gI_TargetSteamID[client], countryLine, sLastLogin,
+		sRankingString, "Playtime", client, sPlaytime);
+
+	int[] styles = new int[gI_Styles];
+	Shavit_GetOrderedStyles(styles, gI_Styles);
+
+	for(int i = 0; i < gI_Styles; i++)
+	{
+		int iStyle = styles[i];
+
+		if(Shavit_GetStyleSettingInt(iStyle, "unranked") || Shavit_GetStyleSettingInt(iStyle, "enabled") <= 0)
+		{
+			continue;
+		}
+
+		char sInfo[4];
+		IntToString(iStyle, sInfo, 4);
+
+		char sStyleInfo[256];
+
+		if (iStyle == gI_Style[client])
+		{
+			FormatEx(sStyleInfo, sizeof(sStyleInfo),
+				"%s\n"...
+				"    [Main] %T: %d/%d (%0.1f%%)\n"...
+				"    [Main] %T: %d\n"...
+				"    [Bonus] %T: %d/%d (%0.1f%%)\n"...
+				"    [Bonus] %T: %d\n"...
+				"    [%T] %s\n"...
+				"",
+				gS_StyleStrings[iStyle].sStyleName,
+				"MapCompletions", client, iCompletions[0], iMaps[0], ((float(iCompletions[0]) / (iMaps[0] > 0 ? float(iMaps[0]) : 0.0)) * 100.0),
+				"WorldRecords", client, iWRs[0],
+				"MapCompletions", client, iCompletions[1], iMaps[1], ((float(iCompletions[1]) / (iMaps[1] > 0 ? float(iMaps[1]) : 0.0)) * 100.0),
+				"WorldRecords", client, iWRs[1],
+				"Playtime", client, sStylePlaytime
+			);
+		}
+		else
+		{
+			FormatEx(sStyleInfo, sizeof(sStyleInfo), "%s\n", gS_StyleStrings[iStyle].sStyleName);
+		}
+
+		menu.AddItem(sInfo, sStyleInfo);
+	}
+
+	// should NEVER happen
+	if(menu.ItemCount == 0)
+	{
+		char sMenuItem[64];
+		FormatEx(sMenuItem, 64, "%T", "NoRecords", client);
+		menu.AddItem("-1", sMenuItem);
+	}
+
+	menu.ExitButton = true;
+	menu.DisplayAt(client, item, MENU_TIME_FOREVER);
+
+	Shavit_PrintSteamIDOnce(client, gI_TargetSteamID[client], gS_TargetName[client]);
 }
 
 public int MenuHandler_ProfileHandler(Menu menu, MenuAction action, int param1, int param2)

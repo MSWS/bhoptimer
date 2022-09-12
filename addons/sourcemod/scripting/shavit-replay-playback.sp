@@ -2271,7 +2271,8 @@ void UpdateBotScoreboard(bot_info_t info)
 		sv_duplicate_playernames_ok.IntValue = sv_duplicate_playernames_ok_original;
 	}
 
-	int iScore = (info.aCache.iFrameCount > 0 || central) ? 1337 : -1337;
+	// int iScore = (info.aCache.iFrameCount > 0 || central) ? 3141 : -3141;
+	int iScore = 0;
 
 	if(gEV_Type == Engine_CSGO)
 	{
