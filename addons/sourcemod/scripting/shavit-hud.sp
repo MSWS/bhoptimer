@@ -1440,7 +1440,7 @@ int AddHUDToBuffer_CSGO(int client, huddata_t data, char[] buffer, int maxlen)
 	int iLines = 0;
 	char sLine[128];
 
-	StrCat(buffer, maxlen, "<span class='fontSize-l'>");
+	StrCat(buffer, maxlen, "<span class='fontSize-m'>");
 
 	if (gI_HUDSettings[client] & HUD_DEBUGTARGETNAME)
 	{
