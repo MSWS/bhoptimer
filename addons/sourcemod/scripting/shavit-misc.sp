@@ -1131,6 +1131,14 @@ void UpdateScoreboard(int client)
 	{
 		SetEntProp(client, Prop_Data, "m_iDeaths", Shavit_GetRank(client));
 	}
+
+	float fTime = Shavit_GetClientTime(client);
+	if (fTime < 1.0)
+		return;
+	int minutes = RoundToFloor(fTime / 60.0);
+	int seconds = RoundFloat(FloatMod(fTime, 60.0));
+	SetEntProp(client, Prop_Data, "m_iFrags", minutes);
+	CS_SetClientAssists(client, seconds);
 }
 
 void UpdateClanTag(int client)
@@ -2711,4 +2719,9 @@ public Action Command_Drop(int client, const char[] command, int argc)
 public int Native_IsClientUsingHide(Handle plugin, int numParams)
 {
 	return gB_Hide[GetNativeCell(1)];
+}
+
+stock float FloatMod(float num, float denom)
+{
+    return num - denom * RoundToFloor(num / denom);
 }
