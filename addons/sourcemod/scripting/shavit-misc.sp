@@ -1142,8 +1142,8 @@ void UpdateScoreboard(int client)
 	}
 
 	float fTime = Shavit_GetClientTime(client);
-	if (fTime < 1.0)
-		return;
+	// if (fTime < 1.0)
+	// 	return;
 	int minutes = RoundToFloor(fTime / 60.0);
 	int seconds = RoundFloat(FloatMod(fTime, 60.0));
 	SetEntProp(client, Prop_Data, "m_iFrags", minutes);
