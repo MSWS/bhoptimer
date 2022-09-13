@@ -1531,7 +1531,7 @@ public void DeleteAll_Callback(Database db, DBResultSet results, const char[] er
 
 	DeleteWR(style, track, gS_Map, 0, -1, false, true);
 
-	Shavit_PrintToChat(client, "%T", "DeletedRecordsMap", client, gS_ChatStrings.sVariable, gS_Map, gS_ChatStrings.sText);
+	Shavit_PrintToChat(client, "%T", "DeletedRecordsMap", client, gS_ChatStrings.sVariable2, gS_Map, gS_ChatStrings.sText);
 }
 
 public Action Command_WorldRecord_Style(int client, int args)

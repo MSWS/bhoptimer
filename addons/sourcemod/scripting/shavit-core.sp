@@ -1433,7 +1433,7 @@ void CallOnTrackChanged(int client, int oldtrack, int newtrack)
 	if (oldtrack == Track_Main && oldtrack != newtrack && !DoIHateMain(client))
 	{
 		Shavit_StopChatSound();
-		Shavit_PrintToChat(client, "%T", "TrackChangeFromMain", client, gS_ChatStrings.sVariable, gS_ChatStrings.sText, gS_ChatStrings.sVariable, gS_ChatStrings.sText, gS_ChatStrings.sVariable, gS_ChatStrings.sText);
+		Shavit_PrintToChat(client, "%T", "TrackChangeFromMain", client, gS_ChatStrings.sVariable2, gS_ChatStrings.sText, gS_ChatStrings.sVariable2, gS_ChatStrings.sText, gS_ChatStrings.sVariable2, gS_ChatStrings.sText);
 	}
 }
 
