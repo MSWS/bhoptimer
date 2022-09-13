@@ -586,7 +586,7 @@ public Action Command_Tier(int client, int args)
 		}
 	}
 
-	Shavit_PrintToChat(client, "%T", "CurrentTier", client, gS_ChatStrings.sVariable, sMap, gS_ChatStrings.sText, gS_ChatStrings.sVariable2, tier, gS_ChatStrings.sText);
+	Shavit_PrintToChat(client, "%T", "CurrentTier", client, gS_ChatStrings.sVariable2, sMap, gS_ChatStrings.sText, gS_ChatStrings.sVariable, tier, gS_ChatStrings.sText);
 
 	return Plugin_Handled;
 }
