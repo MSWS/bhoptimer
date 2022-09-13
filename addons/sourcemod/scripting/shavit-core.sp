@@ -706,7 +706,7 @@ public Action Command_StartTimer(int client, int args)
 			track = Track_Bonus;
 		}
 	}
-	else if(StrContains(sCommand, "sm_r", false) == 0 || StrContains(sCommand, "sm_s", false) == 0)
+	else if(StrContains(sCommand, "sm_r", false) == 0 || StrContains(sCommand, "sm_st", false) == 0)
 	{
 		track = (DoIHateMain(client)) ? Track_Main : gA_Timers[client].iTimerTrack;
 	}
