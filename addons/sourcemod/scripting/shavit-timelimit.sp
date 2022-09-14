@@ -69,11 +69,19 @@ bool gB_BlockRoundEndEvent = false;
 bool gB_AlternateZeroPrint = false;
 Handle gH_Timer = null;
 EngineVersion gEV_Type = Engine_Unknown;
+chatstrings_t gS_ChatStrings;
+bool gB_Late = false;
 
 Handle gH_Forwards_OnCountdownStart = null;
 
 // table prefix
 char gS_MySQLPrefix[32];
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	gB_Late = late;
+	return APLRes_Success;
+}
 
 public Plugin myinfo =
 {
@@ -132,6 +140,9 @@ public void OnPluginStart()
 
 	GetTimerSQLPrefix(gS_MySQLPrefix, 32);
 	gH_SQL = GetTimerDatabaseHandle();
+
+	if(gB_Late)
+		Shavit_OnChatConfigLoaded();
 }
 
 public void OnMapStart()
@@ -295,6 +306,11 @@ void SetLimit(int time)
 	}
 }
 
+public void Shavit_OnChatConfigLoaded()
+{
+	Shavit_GetChatStringsStruct(gS_ChatStrings);
+}
+
 public Action Timer_PrintToChat(Handle timer)
 {
 	if(!gCV_Enabled.BoolValue)
@@ -350,12 +366,12 @@ public Action Timer_PrintToChat(Handle timer)
 		{
 			IntToString(timeleft/60, timebuf, sizeof(timebuf));
 			Shavit_StopChatSound();
-			Shavit_PrintToChatAll("%T", "Minutes", LANG_SERVER, timebuf);
+			Shavit_PrintToChatAll("%T", "Minutes", LANG_SERVER, gS_ChatStrings.sVariable2, timebuf, gS_ChatStrings.sText);
 		}
 		case 60, 30, 15:
 		{
 			IntToString(timeleft, timebuf, sizeof(timebuf));
-			Shavit_PrintToChatAll("%T", "Seconds", LANG_SERVER, timebuf);
+			Shavit_PrintToChatAll("%T", "Seconds", LANG_SERVER, gS_ChatStrings.sVariable2, timebuf, gS_ChatStrings.sText);
 		}
 
 		case 0: // case 0 is hit twice....

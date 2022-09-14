@@ -1123,22 +1123,20 @@ void UpdateScoreboard(int client)
 		return;
 	}
 
-	float fPB = Shavit_GetClientPB(client, 0, Track_Main);
-
-	int iScore = (fPB != 0.0 && fPB < 2000)? -RoundToFloor(fPB):-2000;
-
 	if(gEV_Type == Engine_CSGO)
 	{
-		CS_SetClientContributionScore(client, iScore);
+		CS_SetClientContributionScore(client, - Shavit_GetRank(client));
 	}
 	else
 	{
+		float fPB = Shavit_GetClientPB(client, 0, Track_Main);
+		int iScore = (fPB != 0.0 && fPB < 2000)? -RoundToFloor(fPB):-2000;
 		SetEntProp(client, Prop_Data, "m_iFrags", iScore);
 	}
 
 	if(gB_Rankings)
 	{
-		SetEntProp(client, Prop_Data, "m_iDeaths", Shavit_GetRank(client));
+		SetEntProp(client, Prop_Send, "m_iAccount", RoundFloat(Shavit_GetPoints(client)));
 	}
 
 	float fTime = Shavit_GetClientTime(client);

@@ -30,6 +30,7 @@
 #include <shavit/replay-playback>
 #include <shavit/wr>
 #include <shavit/zones>
+#include <shavit/rankings>
 
 #undef REQUIRE_PLUGIN
 #include <shavit/replay-recorder>
@@ -2271,12 +2272,11 @@ void UpdateBotScoreboard(bot_info_t info)
 		sv_duplicate_playernames_ok.IntValue = sv_duplicate_playernames_ok_original;
 	}
 
-	// int iScore = (info.aCache.iFrameCount > 0 || central) ? 3141 : -3141;
 	int iScore = 0;
 
 	if(gEV_Type == Engine_CSGO)
 	{
-		CS_SetClientContributionScore(client, iScore);
+		CS_SetClientContributionScore(client, Shavit_GetStyleCount() - info.iStyle);
 	}
 	else if(gEV_Type == Engine_CSS)
 	{

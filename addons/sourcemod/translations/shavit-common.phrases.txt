@@ -43,13 +43,13 @@
 	// ---------- Timelimit ---------- //
 	"Minutes"
 	{
-		"#format"	"{1:s}"
-		"en"		"{1} minutes remaining."
+		"#format"	"{1:s},{2:s},{3:s}"
+		"en"		"{1}{2}{3} minutes remaining."
 	}
 	"Seconds"
 	{
-		"#format"	"{1:s}"
-		"en"		"{1} seconds remaining."
+		"#format"	"{1:s}{2:s},{3:s}"
+		"en"		"{1}{2}{3} seconds remaining."
 	}
 	// ----------- Random ----------- //
 	"TimerLoading"
