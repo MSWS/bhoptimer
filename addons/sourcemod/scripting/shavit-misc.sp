@@ -1139,6 +1139,8 @@ void UpdateScoreboard(int client)
 		SetEntProp(client, Prop_Send, "m_iAccount", RoundFloat(Shavit_GetPoints(client)));
 	}
 
+	SetEntProp(client, Prop_Data, "m_iDeaths", Shavit_GetClientJumps(client));
+
 	float fTime = Shavit_GetClientTime(client);
 	int minutes = RoundToFloor(fTime / 60.0);
 	int seconds = RoundFloat(FloatMod(fTime, 60.0));
@@ -1319,8 +1321,8 @@ public Action Shavit_OnUserCmdPre(int client, int &buttons, int &impulse, float 
 		if(bestTime != 0 && current > bestTime)
 		{
 			Shavit_RestartTimer(client, track);
-			Shavit_PrintToChat(client, "%T", "AutoRestartTriggered1", client, gS_ChatStrings.sVariable, gS_ChatStrings.sText);
-			Shavit_PrintToChat(client, "%T", "AutoRestartTriggered2", client, gS_ChatStrings.sVariable, gS_ChatStrings.sText);
+			Shavit_PrintToChat(client, "%T", "AutoRestartTriggered1", client, gS_ChatStrings.sWarning, gS_ChatStrings.sText);
+			Shavit_PrintToChat(client, "%T", "AutoRestartTriggered2", client, gS_ChatStrings.sVariable2, gS_ChatStrings.sText);
 		}
 	}
 

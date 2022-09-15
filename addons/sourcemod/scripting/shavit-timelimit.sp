@@ -366,12 +366,12 @@ public Action Timer_PrintToChat(Handle timer)
 		{
 			IntToString(timeleft/60, timebuf, sizeof(timebuf));
 			Shavit_StopChatSound();
-			Shavit_PrintToChatAll("%T", "Minutes", LANG_SERVER, gS_ChatStrings.sVariable2, timebuf, gS_ChatStrings.sText);
+			Shavit_PrintToChatAll("%T", "Minutes", LANG_SERVER, gS_ChatStrings.sVariable, timebuf, gS_ChatStrings.sText);
 		}
 		case 60, 30, 15:
 		{
 			IntToString(timeleft, timebuf, sizeof(timebuf));
-			Shavit_PrintToChatAll("%T", "Seconds", LANG_SERVER, gS_ChatStrings.sVariable2, timebuf, gS_ChatStrings.sText);
+			Shavit_PrintToChatAll("%T", "Seconds", LANG_SERVER, gS_ChatStrings.sVariable, timebuf, gS_ChatStrings.sText);
 		}
 
 		case 0: // case 0 is hit twice....
