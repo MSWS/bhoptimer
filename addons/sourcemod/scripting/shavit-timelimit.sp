@@ -220,6 +220,11 @@ public void OnConfigsExecuted()
 	}
 }
 
+public void Shavit_OnChatConfigLoaded()
+{
+	Shavit_GetChatStringsStruct(gS_ChatStrings);
+}
+
 void StartCalculating()
 {
 	char sMap[PLATFORM_MAX_PATH];
@@ -303,6 +308,7 @@ void SetLimit(int time)
 	if(mp_roundtime != null)
 	{
 		mp_roundtime.IntValue = time;
+		GameRules_SetProp("m_iRoundTime", time * 60); 
 	}
 }
 
@@ -470,7 +476,6 @@ public Action Command_Extend(int client, int args)
 	}
 
 	ExtendMapTimeLimit(extendtime);
-	Shavit_PrintToChatAll("%N extended the map by %d minutes", client, extendtime / 60);
-
+	Shavit_PrintToChatAll("%T", "Extended", LANG_SERVER, gS_ChatStrings.sVariable2, client, gS_ChatStrings.sText, gS_ChatStrings.sVariable, extendtime / 60,  gS_ChatStrings.sText);
 	return Plugin_Handled;
 }
