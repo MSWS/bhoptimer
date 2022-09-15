@@ -220,11 +220,6 @@ public void OnConfigsExecuted()
 	}
 }
 
-public void Shavit_OnChatConfigLoaded()
-{
-	Shavit_GetChatStringsStruct(gS_ChatStrings);
-}
-
 void StartCalculating()
 {
 	char sMap[PLATFORM_MAX_PATH];
