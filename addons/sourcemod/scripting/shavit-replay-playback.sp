@@ -2220,7 +2220,7 @@ void FormatStyle(const char[] source, int style, bool central, int track, char d
 
 	char sTrack[32];
 	GetTrackName(LANG_SERVER, track, sTrack, 32);
-	ReplaceString(temp, sizeof(temp), "{track}", sTrack);
+	ReplaceString(temp, sizeof(temp), "{track}", track == -1 ? "" : sTrack);
 
 	strcopy(dest, MAX_NAME_LENGTH, temp);
 }
@@ -2283,6 +2283,7 @@ void UpdateBotScoreboard(bot_info_t info)
 		SetEntProp(client, Prop_Data, "m_iFrags", iScore);
 	}
 
+	SetEntProp(client, Prop_Send, "m_iAccount", 0);
 	SetEntProp(client, Prop_Data, "m_iDeaths", 0);
 }
 
