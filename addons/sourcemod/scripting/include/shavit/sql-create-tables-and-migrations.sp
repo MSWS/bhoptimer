@@ -214,9 +214,13 @@ public void SQL_CreateTables(Database hSQL, const char[] prefix, int driver)
 		gS_SQLPrefix, sOptionalINNODB);
 	AddQueryLog(trans, sQuery);
 
+	//
+	//// shavit-reports
+	//
+
 	FormatEx(sQuery, sizeof(sQuery),
-		"CREATE TABLE IF NOT EXISTS `%sreports` (`id` INT AUTO_INCREMENT NOT NULL, `onReport` INT NOT NULL, `reporter` INT NOT NULL, `reason` VARCHAR(128) NOT NULL, PRIMARY_KEY (`id`)) %s;",
-		gS_SQLPrefix, sOptionalINNODB);
+		"CREATE TABLE IF NOT EXISTS `%sreports` (`id` INT AUTO_INCREMENT NOT NULL, `onReport` INT NOT NULL, `reporter` INT NOT NULL, `reason` VARCHAR(128) NOT NULL, PRIMARY_KEY (`id`), FOREIGN KEY (`id`) REFERENCES %splayertimes(`id`) ON DELETE CASCADE) %s;",
+		gS_SQLPrefix, gS_SQLPrefix, sOptionalINNODB);
 	AddQueryLog(trans, sQuery);
 
 	hSQL.Execute(trans, Trans_CreateTables_Success, Trans_CreateTables_Error, 0, DBPrio_High);
@@ -237,6 +241,7 @@ public void Trans_CreateTables_Error(Database db, any data, int numQueries, cons
 		"wrs",
 		"mapzones",
 		"startpositions",
+		"reports"
 	};
 
 	if (0 <= failIndex < sizeof(tablenames))

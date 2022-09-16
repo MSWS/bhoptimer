@@ -1,7 +1,8 @@
 enum struct report_t
 {
   int recordId;
-  int iAuth;
-  int iTarget;
+  int reporter;
+  int reported;
+  char reporterName[MAX_NAME_LENGTH];
   char reason[128];
 }
