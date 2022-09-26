@@ -189,6 +189,8 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_time", Command_PersonalBest, "View a player's time on a specific map.");
 	RegConsoleCmd("sm_pb", Command_PersonalBest, "View a player's time on a specific map.");
 
+	RegConsoleCmd("sm_overtake", Command_Overtake, "View your records that were stolen.");
+
 	// delete records
 	RegAdminCmd("sm_delete", Command_Delete, ADMFLAG_RCON, "Opens a record deletion menu interface.");
 	RegAdminCmd("sm_deleterecord", Command_Delete, ADMFLAG_RCON, "Opens a record deletion menu interface.");
@@ -541,10 +543,44 @@ public void SQL_UpdateCache_Callback(Database db, DBResultSet results, const cha
 
 		gF_PlayerRecord[client][style][track] = results.FetchFloat(0);
 		gI_PlayerCompletion[client][style][track] = results.FetchInt(3);
+	}
+	gB_LoadedCache[client] = true;
+}
 
+public void SQL_Overtakes_Callback(Database db, DBResultSet results, const char[] error, int client)
+{
+	if(results == null)
+	{
+		LogError("Timer (Overtake update) SQL query failed. Reason: %s", error);
+		return;
 	}
 
-	gB_LoadedCache[client] = true;
+	if(results.RowCount == 0) {
+		Shavit_PrintToChat(client, "%T", "NoOvertakes", client);
+		return;
+	}
+
+	while(results.FetchRow())
+	{
+		char name[MAX_NAME_LENGTH], sTrack[32], map[PLATFORM_MAX_PATH];
+		char oldTime[32], newTime[32];
+		results.FetchString(0, map, sizeof(map));
+		results.FetchString(1, name, sizeof(name));
+		int style = results.FetchInt(2);
+		int track = results.FetchInt(3);
+		int date = results.FetchInt(4);
+		float time = results.FetchFloat(5);
+		float pb = Shavit_GetClientPB(client, style, track);
+		FormatSeconds(pb - time, oldTime, sizeof(oldTime), false);
+		FormatSeconds(time, newTime, sizeof(newTime), false);
+// 		"en" "{1}{2}{3} overtook your {4}{5} {6} {7}record on {8}{9} by {10}{11} {12}({13}{14}{15})."
+		GetTrackName(client, track, sTrack, sizeof(sTrack));
+		Shavit_PrintToChat(client, "%T", "Overtaken", 
+			client, gS_ChatStrings.sVariable, name, gS_ChatStrings.sText, gS_ChatStrings.sStyle,
+			gS_StyleStrings[style], sTrack, gS_ChatStrings.sText, gS_ChatStrings.sVariable, map,
+			gS_ChatStrings.sText, gS_ChatStrings.sVariable2, oldTime, gS_ChatStrings.sText,
+			gS_ChatStrings.sVariable2, newTime, gS_ChatStrings.sText);
+	}
 }
 
 void UpdateWRCache(int client = -1)
@@ -2196,6 +2232,16 @@ public Action Command_PersonalBest(int client, int args)
 
 	QueryLog(gH_SQL, SQL_PersonalBest_Callback, query, pack, DBPrio_Low);
 
+	return Plugin_Handled;
+}
+
+public Action Command_Overtake(int client, int args)
+{
+	char sQuery[512];
+	FormatEx(sQuery, sizeof(sQuery), 
+		"SELECT beater.name, style, track, date, MIN(`time`) FROM %splayertimes LEFT JOIN %susers client ON client.`auth` = %d LEFT JOIN %susers beater ON `beater`.`auth` = `playertimes`.`auth` WHERE client.`auth` != %d AND `date` > client.`lastlogin` GROUP BY `style`, `track`;", 
+		gS_MySQLPrefix, gS_MySQLPrefix, GetSteamAccountID(client), gS_MySQLPrefix, gS_Map, GetSteamAccountID(client));
+	QueryLog(gH_SQL, SQL_Overtakes_Callback, sQuery, client, DBPrio_High);
 	return Plugin_Handled;
 }
 
