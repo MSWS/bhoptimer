@@ -435,14 +435,6 @@ public void OnClientCookiesCached(int client)
 		return;
 	}
 
-	gB_Hide[client] = ProcessCookie(client, gH_HideCookie);
-	gB_AutoRestart[client] = ProcessCookie(client, gH_AutoResCookie);
-
-	gI_Style[client] = Shavit_GetBhopStyle(client);
-}
-
-bool ProcessCookie(int client, Handle cookie)
-{
 	char sSetting[8];
 	GetClientCookie(client, gH_HideCookie, sSetting, sizeof(sSetting));
 	gB_Hide[client] = StringToInt(sSetting) != 0;
@@ -1316,14 +1308,16 @@ public Action Shavit_OnUserCmdPre(int client, int &buttons, int &impulse, float 
 		}
 	}
 
-	if(gB_AutoRestart[client])
+	if (gB_AutoRestart[client])
 	{
-		float bestTime = Shavit_GetClientPB(client, style, track), current = Shavit_GetClientTime(client);
-		if(bestTime != 0 && current > bestTime)
+		float bestTime = Shavit_GetClientPB(client, style, track);
+		float current = Shavit_GetClientTime(client);
+
+		if (bestTime != 0 && current > bestTime)
 		{
 			Shavit_RestartTimer(client, track);
-			Shavit_PrintToChat(client, "%T", "AutoRestartTriggered1", client, gS_ChatStrings.sWarning, gS_ChatStrings.sText);
-			Shavit_PrintToChat(client, "%T", "AutoRestartTriggered2", client, gS_ChatStrings.sVariable2, gS_ChatStrings.sText);
+			Shavit_PrintToChat(client, "%T", "AutoRestartTriggered1", client, gS_ChatStrings.sVariable, gS_ChatStrings.sText);
+			Shavit_PrintToChat(client, "%T", "AutoRestartTriggered2", client, gS_ChatStrings.sVariable, gS_ChatStrings.sText);
 		}
 	}
 

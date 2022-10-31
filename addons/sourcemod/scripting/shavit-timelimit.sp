@@ -70,18 +70,13 @@ bool gB_AlternateZeroPrint = false;
 Handle gH_Timer = null;
 EngineVersion gEV_Type = Engine_Unknown;
 chatstrings_t gS_ChatStrings;
-bool gB_Late = false;
 
 Handle gH_Forwards_OnCountdownStart = null;
 
 // table prefix
 char gS_MySQLPrefix[32];
 
-public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
-{
-	gB_Late = late;
-	return APLRes_Success;
-}
+bool gB_Late = false;
 
 public Plugin myinfo =
 {
@@ -90,6 +85,12 @@ public Plugin myinfo =
 	description = "Sets a dynamic value of mp_timelimit and mp_roundtime, based on average map times on the server.",
 	version = SHAVIT_VERSION,
 	url = "https://github.com/shavitush/bhoptimer"
+}
+
+public APLRes AskPluginLoad2(Handle plugin, bool late, char[] error, int maxlength)
+{
+	gB_Late = late;
+	return APLRes_Success;
 }
 
 public void OnPluginStart()
@@ -218,6 +219,11 @@ public void OnConfigsExecuted()
 	{
 		gH_Timer = CreateTimer(1.0, Timer_PrintToChat, 0, TIMER_REPEAT);
 	}
+}
+
+public void Shavit_OnChatConfigLoaded()
+{
+	Shavit_GetChatStringsStruct(gS_ChatStrings);
 }
 
 void StartCalculating()

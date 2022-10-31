@@ -24,7 +24,7 @@
 #endif
 #define _shavit_core_included
 
-#define SHAVIT_VERSION "3.3.2"
+#define SHAVIT_VERSION "3.4.2"
 #define STYLE_LIMIT 256
 
 // god i fucking hate sourcemod. NULL_VECTOR isn't const so it's not guaranteed to be 0,0,0
@@ -329,7 +329,7 @@ stock void GetTimerSQLPrefix(char[] buffer, int maxlen)
 
 stock bool IsValidClient(int client, bool bAlive = false)
 {
-	return (client >= 1 && client <= MaxClients && IsClientConnected(client) && IsClientInGame(client) && !IsClientSourceTV(client) && (!bAlive || IsPlayerAlive(client)));
+	return (client >= 1 && client <= MaxClients && IsClientInGame(client) && !IsClientSourceTV(client) && (!bAlive || IsPlayerAlive(client)));
 }
 
 stock bool IsSource2013(EngineVersion ev)

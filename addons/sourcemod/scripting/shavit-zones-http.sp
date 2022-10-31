@@ -79,6 +79,21 @@ public Plugin myinfo =
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
+	MarkNativeAsOptional("HTTPRequest.HTTPRequest");
+	MarkNativeAsOptional("HTTPRequest.SetHeader");
+	MarkNativeAsOptional("HTTPRequest.Get");
+	MarkNativeAsOptional("HTTPResponse.Status.get");
+	MarkNativeAsOptional("HTTPResponse.Data.get");
+	MarkNativeAsOptional("JSONObject.HasKey");
+	MarkNativeAsOptional("JSONObject.Get");
+	MarkNativeAsOptional("JSONObject.GetInt");
+	MarkNativeAsOptional("JSONObject.GetFloat");
+	MarkNativeAsOptional("JSONObject.GetString");
+	MarkNativeAsOptional("JSONArray.Get");
+	MarkNativeAsOptional("JSONArray.Length.get");
+	MarkNativeAsOptional("JSONArray.GetFloat");
+	MarkNativeAsOptional("SteamWorks_SetHTTPRequestAbsoluteTimeoutMS");
+	
 	RegPluginLibrary("shavit-zones-http");
 	return APLRes_Success;
 }

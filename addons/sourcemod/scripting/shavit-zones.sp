@@ -4283,9 +4283,7 @@ void CreateEditMenu(int client, bool autostage=false)
 	{
 		if (autostage)
 		{
-			int highest = gI_HighestStage[gA_EditCache[client].iTrack];
-			highest = highest > 0 ? highest+1 : 2;
-			gA_EditCache[client].iData = highest;
+			gA_EditCache[client].iData = gI_HighestStage[gA_EditCache[client].iTrack] + 1;
 		}
 
 		FormatEx(sMenuItem, 64, "%T", "ZoneSetStage", client, gA_EditCache[client].iData);
@@ -4798,7 +4796,7 @@ void DrawZone(float points[8][3], int color[4], float life, float width, bool fl
 
 		for (int j = 0; j < 12; j++)
 		{
-			float actual_width = (j >= 8) ? 0.75 : 2.5;
+			float actual_width = (j >= 8) ? 0.5 : 1.0;
 			char x = magic[editaxis*12+j];
 			TE_SetupBeamPoints(points[x >> 4], points[x & 7], beam, halo, 0, 0, life, actual_width, actual_width, 0, 0.0, clrs[((j >= 8) ? ZoneColor_White : ZoneColor_Green) - 1], speed);
 			TE_Send(clients, count, 0.0);
