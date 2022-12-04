@@ -210,7 +210,6 @@ public void OnPluginStart()
 	// qol
 	RegConsoleCmd("sm_autorestart", Command_AutoRestart, "Toggles auto-restart.");
 	RegConsoleCmd("sm_autoreset", Command_AutoRestart, "Toggles auto-restart.");
-	
 	gH_AutoRestartCookie = RegClientCookie("shavit_autorestart", "Auto-restart settings", CookieAccess_Protected);
 
 	AddCommandListener(CommandListener_Noclip, "+noclip");
@@ -864,8 +863,19 @@ public Action Command_Jointeam(int client, const char[] command, int args)
 		return Plugin_Continue;
 	}
 
-	char arg1[8];
-	GetCmdArg(1, arg1, 8);
+	char arg1[16];
+	GetCmdArg(1, arg1, sizeof(arg1));
+
+	if (gEV_Type == Engine_TF2)
+	{
+		if (StrEqual(arg1, "spectate", false) || StrEqual(arg1, "spectator", false))
+		{
+			Command_Spec(client, 0);
+			return Plugin_Stop;
+		}
+
+		return Plugin_Continue;
+	}
 
 	int iTeam = StringToInt(arg1);
 	int iHumanTeam = GetHumanTeam();
@@ -913,11 +923,7 @@ void CleanSwitchTeam(int client, int team)
 		event.Cancel();
 	}
 
-	if(gEV_Type == Engine_TF2)
-	{
-		TF2_ChangeClientTeam(client, view_as<TFTeam>(team));
-	}
-	else if(team != 1)
+	if (gEV_Type != Engine_TF2 && team != 1)
 	{
 		CS_SwitchTeam(client, team);
 	}
@@ -1562,23 +1568,12 @@ public void TF2_OnPreThink(int client)
 {
 	if(IsPlayerAlive(client))
 	{
-		float maxspeed;
-
 		if (GetEntityFlags(client) & FL_ONGROUND)
 		{
-			maxspeed = Shavit_GetStyleSettingFloat(gI_Style[client], "runspeed");
+			// not the best method, but only one i found for tf2
+			// ^ (which is relatively simple)
+			SetEntPropFloat(client, Prop_Send, "m_flMaxspeed", Shavit_GetStyleSettingFloat(gI_Style[client], "runspeed"));
 		}
-		else
-		{
-			// This is used to stop CTFGameMovement::PreventBunnyJumping from destroying
-			// player velocity when doing uncrouch stuff. Kind of poopy.
-			float fSpeed[3];
-			GetEntPropVector(client, Prop_Data, "m_vecAbsVelocity", fSpeed);
-			maxspeed = GetVectorLength(fSpeed);
-		}
-
-		// not the best method, but only one i found for tf2
-		SetEntPropFloat(client, Prop_Send, "m_flMaxspeed", maxspeed);
 	}
 }
 

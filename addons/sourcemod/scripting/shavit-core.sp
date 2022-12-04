@@ -160,6 +160,7 @@ ConVar sv_friction = null;
 chatstrings_t gS_ChatStrings;
 
 // misc cache
+int gI_ClientProcessingMovement = 0;
 bool gB_StopChatSound = false;
 bool gB_HookedJump = false;
 char gS_LogPath[PLATFORM_MAX_PATH];
@@ -515,6 +516,21 @@ void LoadDHooks()
 	DHookAddParam(processMovementPost, HookParamType_CBaseEntity);
 	DHookAddParam(processMovementPost, HookParamType_ObjectPtr);
 	DHookRaw(processMovementPost, true, IGameMovement);
+
+	if (gEV_Type == Engine_TF2)
+	{
+		Handle PreventBunnyJumping = DHookCreateDetour(Address_Null, CallConv_THISCALL, ReturnType_Void, ThisPointer_Ignore);
+
+		if (!DHookSetFromConf(PreventBunnyJumping, gamedataConf, SDKConf_Signature, "CTFGameMovement::PreventBunnyJumping"))
+		{
+			SetFailState("Failed to set CTFGameMovement::PreventBunnyJumping signature");
+		}
+
+		if (!DHookEnableDetour(PreventBunnyJumping, false, DHook_PreventBunnyJumpingPre))
+		{
+			SetFailState("Failed to find CTFGameMovement::PreventBunnyJumping signature");
+		}
+	}
 
 	LoadPhysicsUntouch(gamedataConf);
 
@@ -1572,17 +1588,6 @@ void ChangeClientStyle(int client, int style, bool manual)
 	SetClientCookie(client, gH_StyleCookie, sStyle);
 }
 
-// used as an alternative for games where player_jump isn't a thing, such as TF2
-public void Shavit_Bhopstats_OnLeaveGround(int client, bool jumped, bool ladder)
-{
-	if(gB_HookedJump || !jumped || ladder)
-	{
-		return;
-	}
-
-	DoJump(client);
-}
-
 public void Player_Jump(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
@@ -1879,20 +1884,6 @@ public int Native_ChangeClientStyle(Handle handler, int numParams)
 	return false;
 }
 
-public Action Shavit_OnFinishPre(int client, timer_snapshot_t snapshot)
-{
-	float minimum_time = GetStyleSettingFloat(snapshot.bsStyle, snapshot.iTimerTrack == Track_Main ? "minimum_time" : "minimum_time_bonus");
-
-	if (snapshot.fCurrentTime < minimum_time)
-	{
-		Shavit_PrintToChat(client, "%T", "TimeUnderMinimumTime", client, minimum_time, snapshot.fCurrentTime, snapshot.iTimerTrack == Track_Main ? "minimum_time" : "minimum_time_bonus");
-		Shavit_StopTimer(client);
-		return Plugin_Stop;
-	}
-
-	return Plugin_Continue;
-}
-
 void CalculateRunTime(timer_snapshot_t s, bool include_end_offset)
 {
 	float ticks = float(s.iFullTicks) + (s.iFractionalTicks / 10000.0);
@@ -1938,8 +1929,13 @@ public int Native_FinishMap(Handle handler, int numParams)
 
 	CalculateRunTime(gA_Timers[client], true);
 
-	if (gA_Timers[client].fCurrentTime <= 0.11)
+	float minimum_time = GetStyleSettingFloat(gA_Timers[client].bsStyle, gA_Timers[client].iTimerTrack == Track_Main ? "minimum_time" : "minimum_time_bonus");
+	float current_time = gA_Timers[client].fCurrentTime;
+
+	if (current_time <= 0.11 || current_time < minimum_time)
 	{
+		Shavit_PrintToChat(client, "%T", (current_time <= 0.11) ? "TimeUnderMinimumTime2" : "TimeUnderMinimumTime", client, (current_time <= 0.11) ? 0.11 : minimum_time, current_time,
+		gA_Timers[client].iTimerTrack == Track_Main ? "minimum_time" : "minimum_time_bonus");
 		Shavit_StopTimer(client);
 		return 0;
 	}
@@ -2993,9 +2989,18 @@ public MRESReturn DHook_AcceptInput_player_speedmod_Post(int pThis, DHookReturn 
 	return MRES_Ignored;
 }
 
+public MRESReturn DHook_PreventBunnyJumpingPre()
+{
+	if (GetStyleSettingBool(gA_Timers[gI_ClientProcessingMovement].bsStyle, "bunnyhopping"))
+		return MRES_Supercede;
+	else
+		return MRES_Ignored;
+}
+
 public MRESReturn DHook_ProcessMovement(Handle hParams)
 {
 	int client = DHookGetParam(hParams, 1);
+	gI_ClientProcessingMovement = client;
 
 	// Causes client to do zone touching in movement instead of server frames.
 	// From https://github.com/rumourA/End-Touch-Fix
@@ -3444,21 +3449,36 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	}
 
 	bool bInWater = (GetEntProp(client, Prop_Send, "m_nWaterLevel") >= 2);
+	int iOldButtons = GetEntProp(client, Prop_Data, "m_nOldButtons");
+
+	if (GetStyleSettingBool(gA_Timers[client].bsStyle, "autobhop") && gB_Auto[client] && (buttons & IN_JUMP) > 0 && mtMoveType == MOVETYPE_WALK && !bInWater)
+	{
+		SetEntProp(client, Prop_Data, "m_nOldButtons", (iOldButtons &= ~IN_JUMP));
+	}
+
+	int blockprejump = GetStyleSettingInt(gA_Timers[client].bsStyle, "blockprejump");
+
+	if (blockprejump < 0)
+	{
+		blockprejump = gCV_BlockPreJump.BoolValue;
+	}
+
+	if (bInStart && blockprejump && GetStyleSettingInt(gA_Timers[client].bsStyle, "prespeed") == 0 && (vel[2] > 0 || (buttons & IN_JUMP) > 0))
+	{
+		vel[2] = 0.0;
+		buttons &= ~IN_JUMP;
+	}
 
 	// enable duck-jumping/bhop in tf2
-	if (gEV_Type == Engine_TF2 && GetStyleSettingBool(gA_Timers[client].bsStyle, "bunnyhopping") && (buttons & IN_JUMP) > 0 && iGroundEntity != -1)
+	if (gEV_Type == Engine_TF2 && GetStyleSettingBool(gA_Timers[client].bsStyle, "bunnyhopping") && (buttons & IN_JUMP) > 0 && !(iOldButtons & IN_JUMP) && iGroundEntity != -1)
 	{
 		float fSpeed[3];
 		GetEntPropVector(client, Prop_Data, "m_vecAbsVelocity", fSpeed);
 
 		fSpeed[2] = 289.0;
 		SetEntPropVector(client, Prop_Data, "m_vecAbsVelocity", fSpeed);
-	}
 
-	if (GetStyleSettingBool(gA_Timers[client].bsStyle, "autobhop") && gB_Auto[client] && (buttons & IN_JUMP) > 0 && mtMoveType == MOVETYPE_WALK && !bInWater)
-	{
-		int iOldButtons = GetEntProp(client, Prop_Data, "m_nOldButtons");
-		SetEntProp(client, Prop_Data, "m_nOldButtons", (iOldButtons & ~IN_JUMP));
+		DoJump(client);
 	}
 
 	// perf jump measuring
@@ -3489,19 +3509,6 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				gA_Timers[client].iPerfectJumps++;
 			}
 		}
-	}
-
-	int blockprejump = GetStyleSettingInt(gA_Timers[client].bsStyle, "blockprejump");
-
-	if (blockprejump < 0)
-	{
-		blockprejump = gCV_BlockPreJump.BoolValue;
-	}
-
-	if (bInStart && blockprejump && GetStyleSettingInt(gA_Timers[client].bsStyle, "prespeed") == 0 && (vel[2] > 0 || (buttons & IN_JUMP) > 0))
-	{
-		vel[2] = 0.0;
-		buttons &= ~IN_JUMP;
 	}
 
 	// This can be bypassed by spamming +duck on CSS which causes `iGroundEntity` to be `-1` here...
