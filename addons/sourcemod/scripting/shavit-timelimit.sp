@@ -313,11 +313,6 @@ void SetLimit(int time)
 	}
 }
 
-public void Shavit_OnChatConfigLoaded()
-{
-	Shavit_GetChatStringsStruct(gS_ChatStrings);
-}
-
 public Action Timer_PrintToChat(Handle timer)
 {
 	if(!gCV_Enabled.BoolValue)
