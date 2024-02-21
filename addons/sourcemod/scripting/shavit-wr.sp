@@ -115,6 +115,7 @@ float gA_StageTimes[MAXPLAYERS+1][MAX_STAGES]; // player's current run stage tim
 
 Menu gH_PBMenu[MAXPLAYERS+1];
 int gI_PBMenuPos[MAXPLAYERS+1];
+int gI_SubMenuPos[MAXPLAYERS+1];
 
 public Plugin myinfo =
 {
@@ -127,6 +128,12 @@ public Plugin myinfo =
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
+#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR >= 11
+#else
+	MarkNativeAsOptional("Int64ToString");
+	MarkNativeAsOptional("StringToInt64");
+#endif
+
 	// natives
 	CreateNative("Shavit_GetClientPB", Native_GetClientPB);
 	CreateNative("Shavit_SetClientPB", Native_SetClientPB);
@@ -1934,7 +1941,7 @@ public void SQL_WR_Callback(Database db, DBResultSet results, const char[] error
 	}
 
 	hMenu.ExitBackButton = true;
-	hMenu.Display(client, 300);
+	hMenu.DisplayAt(client, gI_SubMenuPos[client], MENU_TIME_FOREVER);
 }
 
 public int WRMenu_Handler(Menu menu, MenuAction action, int param1, int param2)
@@ -1947,6 +1954,7 @@ public int WRMenu_Handler(Menu menu, MenuAction action, int param1, int param2)
 
 		if(id != -1)
 		{
+			gI_SubMenuPos[param1] = GetMenuSelectionPosition();
 			OpenSubMenu(param1, id);
 		}
 		else
@@ -2501,6 +2509,7 @@ public int SubMenu_Handler(Menu menu, MenuAction action, int param1, int param2)
 		else
 		{
 			delete gH_PBMenu[param1];
+			gI_SubMenuPos[param1] = 0;
 		}
 	}
 	else if(action == MenuAction_End)
